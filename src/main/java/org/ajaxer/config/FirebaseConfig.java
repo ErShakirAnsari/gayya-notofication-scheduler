@@ -1,12 +1,16 @@
 package org.ajaxer.config;
 
 import com.google.auth.oauth2.GoogleCredentials;
+import com.google.cloud.firestore.Firestore;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
+import com.google.firebase.cloud.FirestoreClient;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -19,6 +23,7 @@ import java.io.IOException;
 public class FirebaseConfig
 {
 	@Bean
+	@Order(Ordered.HIGHEST_PRECEDENCE)
 	public FirebaseApp firebaseApp() throws IOException
 	{
 		String serviceAccountKey = System.getenv("FIREBASE_SERVICE_ACCOUNT_JSON_FILE");
@@ -39,5 +44,11 @@ public class FirebaseConfig
 	public DatabaseReference firebaseDatabaseReference(FirebaseApp firebaseApp)
 	{
 		return FirebaseDatabase.getInstance(firebaseApp).getReference();
+	}
+
+	@Bean
+	public Firestore firestore()
+	{
+		return FirestoreClient.getFirestore();
 	}
 }

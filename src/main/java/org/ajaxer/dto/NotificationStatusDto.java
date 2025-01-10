@@ -17,4 +17,7 @@ public class NotificationStatusDto
 	private int minute;
 	private boolean status;
 	private String user;
+
+
+	private String fcmToken;
 }

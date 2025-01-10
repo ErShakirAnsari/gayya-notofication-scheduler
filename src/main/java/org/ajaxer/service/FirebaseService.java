@@ -1,5 +1,10 @@
 package org.ajaxer.service;
 
+import com.google.api.core.ApiFuture;
+import com.google.cloud.firestore.CollectionReference;
+import com.google.cloud.firestore.Firestore;
+import com.google.cloud.firestore.QueryDocumentSnapshot;
+import com.google.cloud.firestore.QuerySnapshot;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -10,6 +15,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.ajaxer.dto.NotificationStatusDto;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -22,6 +30,7 @@ import java.util.concurrent.CompletableFuture;
 public class FirebaseService
 {
 	private final DatabaseReference databaseReference;
+	private final Firestore firestore;
 
 	public CompletableFuture<DataSnapshot> fetchData(final String path)
 	{
@@ -47,7 +56,7 @@ public class FirebaseService
 	public void fetchNotificationTime()
 	{
 		log.info("Fetching notification time");
-		CompletableFuture<DataSnapshot> future = fetchData("/notification_status");
+		CompletableFuture<DataSnapshot> future = fetchData("/test_notification_status");
 		future.thenAccept(dataSnapshot -> {
 			for (DataSnapshot dataSnapshotChild : dataSnapshot.getChildren())
 			{
@@ -57,5 +66,30 @@ public class FirebaseService
 					log.info("sending notification to: {}", dto);
 			}
 		});
+	}
+
+	@PostConstruct
+	public List<Map<String, Object>> fetchAllDocumentsFromCollection() throws Exception
+	{
+		CollectionReference collectionRef = firestore.collection("test_fcm_tokens");
+		ApiFuture<QuerySnapshot> querySnapshotApiFuture = collectionRef.get();
+
+		QuerySnapshot queryDocumentSnapshots = querySnapshotApiFuture.get();
+
+		List<QueryDocumentSnapshot> documents = queryDocumentSnapshots.getDocuments();
+
+		List<Map<String, Object>> result = new ArrayList<>();
+		// Iterate over the documents
+		for (QueryDocumentSnapshot document : documents)
+		{
+			String id = document.getId();
+			log.info("documentId: {}", id);
+			Map<String, Object> data = document.getData();
+			data.forEach((key, value) -> log.info("key: {}, value: {}", key, value));
+
+			result.add(data);  // Get document data (key-value pairs)
+		}
+
+		return result;
 	}
 }

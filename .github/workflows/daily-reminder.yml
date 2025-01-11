@@ -12,11 +12,19 @@ jobs:
   build:
     name: Build
     runs-on: ubuntu-latest
-    container: ershakiransari/jdk:17-mvn3
     steps:
       # Code checkout
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
+
+      # JDK Setup
+      - name: Set Up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          # Available options https://github.com/actions/setup-java?tab=readme-ov-file#supported-distributions
+          distribution: 'corretto'
+          java-version: '17'
+          # cache: 'gradle'
 
       - name: Get current time in IST
         id: get_ist_time

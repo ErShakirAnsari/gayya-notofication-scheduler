@@ -24,6 +24,13 @@
 
     <build>
         <finalName>${artifactId}</finalName>
+        <plugins>
+            <!-- Spring Boot Maven Plugin to package a runnable JAR -->
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
     </build>
 
     <dependencies>

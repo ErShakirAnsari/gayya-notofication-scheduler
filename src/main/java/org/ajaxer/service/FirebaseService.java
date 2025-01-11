@@ -1,29 +1,28 @@
 package org.ajaxer.service;
 
 import com.google.api.core.ApiFuture;
-import com.google.cloud.firestore.CollectionReference;
-import com.google.cloud.firestore.Firestore;
-import com.google.cloud.firestore.QueryDocumentSnapshot;
-import com.google.cloud.firestore.QuerySnapshot;
+import com.google.cloud.firestore.*;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
-import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.ajaxer.common.Constant;
+import org.ajaxer.dto.FcmTokenDto;
 import org.ajaxer.dto.NotificationStatusDto;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 /**
  * @author Shakir Ansari
  * @since 2025-01-10
  */
+@SuppressWarnings("LoggingSimilarMessage")
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -52,7 +51,6 @@ public class FirebaseService
 		return future;
 	}
 
-	@PostConstruct
 	public void fetchNotificationTime()
 	{
 		log.info("Fetching notification time");
@@ -62,32 +60,33 @@ public class FirebaseService
 			{
 				NotificationStatusDto dto = dataSnapshotChild.getValue(NotificationStatusDto.class);
 				log.info("Fetched notification status from firebase database: {}", dto);
-				if (dto != null && dto.isStatus())
+				if (dto != null && dto.isEnable())
 					log.info("sending notification to: {}", dto);
 			}
 		});
 	}
 
-	@PostConstruct
-	public List<Map<String, Object>> fetchAllDocumentsFromCollection() throws Exception
+	public <T> List<T> fetchAllDocumentsFromCollection(String collection, Class<T> type) throws Exception
 	{
-		CollectionReference collectionRef = firestore.collection("test_fcm_tokens");
+		CollectionReference collectionRef = firestore.collection(collection);
+
 		ApiFuture<QuerySnapshot> querySnapshotApiFuture = collectionRef.get();
 
 		QuerySnapshot queryDocumentSnapshots = querySnapshotApiFuture.get();
 
 		List<QueryDocumentSnapshot> documents = queryDocumentSnapshots.getDocuments();
 
-		List<Map<String, Object>> result = new ArrayList<>();
-		// Iterate over the documents
+		List<T> result = new ArrayList<>();
+
 		for (QueryDocumentSnapshot document : documents)
 		{
 			String id = document.getId();
 			log.info("documentId: {}", id);
-			Map<String, Object> data = document.getData();
-			data.forEach((key, value) -> log.info("key: {}, value: {}", key, value));
 
-			result.add(data);  // Get document data (key-value pairs)
+			T object = document.toObject(type);
+			log.debug("object: {}", object);
+
+			result.add(object);
 		}
 
 		return result;

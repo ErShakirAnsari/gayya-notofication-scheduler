@@ -1,0 +1,43 @@
+name: Daily Reminder
+
+on:
+  push:
+    branches:
+      - "master"
+  schedule:
+    - cron: "*/15 * * * *" # every hr
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    container: ershakiransari/jdk:11-mvn3
+    steps:
+      # Code checkout
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Get current time in IST
+        id: get_ist_time
+        run: |
+          IST_TIME=$(TZ="Asia/Kolkata" date +"%Y-%m-%d %H:%M:%S")
+          echo "IST_TIME=$IST_TIME" >> $GITHUB_ENV
+
+      - name: Use IST time in next step
+        run: |
+          echo "The current time in IST is $IST_TIME"
+
+      - name: Build with Maven
+        run: mvn clean package -Dmaven.test.skip=true --file pom.xml --no-transfer-progress
+
+      - name: Send Notifications
+        env:
+          GAYYA_ENV_MODE: "PROD"
+          GAYYA_DAILY_REMINDER_CHANNEL_ID: ${{ secrets.GAYYA_DAILY_REMINDER_CHANNEL_ID }}
+          GAYYA_FIREBASE_DATABASE_URL: ${{ secrets.GAYYA_FIREBASE_DATABASE_URL }}
+          GAYYA_FIREBASE_SERVICE_ACCOUNT_JSON_FILE: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_JSON_FILE }}
+          GAYYA_IST_TIME: ${{ env.IST_TIME }}  # Pass IST_TIME to the Spring Boot app
+        run: java -jar gayya-notification-scheduler.jar
+
+

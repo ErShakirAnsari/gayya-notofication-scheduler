@@ -12,7 +12,7 @@ jobs:
   build:
     name: Build
     runs-on: ubuntu-latest
-    container: ershakiransari/jdk:11-mvn3
+    container: ershakiransari/jdk:17-mvn3
     steps:
       # Code checkout
       - name: Checkout

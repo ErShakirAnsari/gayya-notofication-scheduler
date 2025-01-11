@@ -69,4 +69,20 @@ public class StarterService
 			}
 		}
 	}
+
+	public static boolean isMinuteMatched(int currentMinute, int savedMinute)
+	{
+		if (savedMinute == 0 && currentMinute < 15)
+			return true;
+
+		if (savedMinute == 15)
+			if (currentMinute >= 15 && currentMinute < 30)
+				return true;
+
+		if (savedMinute == 30)
+			if (currentMinute >= 30 && currentMinute < 45)
+				return true;
+
+		return savedMinute == 45 && currentMinute >= 45;
+	}
 }

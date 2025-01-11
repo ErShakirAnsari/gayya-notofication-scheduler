@@ -38,7 +38,7 @@ public class EnvironmentService
 	{
 		log.info("istTime is {}", istTime);
 
-		if (istTime == null)
+		if (istTime == null || istTime.isEmpty())
 			return LocalDateTime.now();
 
 

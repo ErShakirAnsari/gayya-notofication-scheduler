@@ -64,7 +64,7 @@ public class StarterService
 			if (localDateTime.getHour() == dto.getHour())
 			{
 				int savedMinutes = dto.getMinute() * 15;
-				if (localDateTime.getMinute() >= savedMinutes)
+				if (isMinuteMatched(localDateTime.getMinute(), savedMinutes))
 					firebaseNotificationService.sendNotification(fcmTokenDto.getToken(), dailyReminderChannelId, messageDto);
 			}
 		}

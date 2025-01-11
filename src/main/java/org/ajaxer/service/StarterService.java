@@ -30,7 +30,7 @@ public class StarterService
 	public void sendDailyReminderNotification() throws Exception
 	{
 		List<NotificationStatusDto> notificationStatusDtoList = firestoreService.fetchNotificationStatus();
-		log.debug("notificationStatusDtoList: {}", notificationStatusDtoList);
+		log.info("notificationStatusDtoList: {}", notificationStatusDtoList);
 
 		if (CollectionUtils.isEmpty(notificationStatusDtoList))
 		{
@@ -39,21 +39,21 @@ public class StarterService
 		}
 
 		String dailyReminderChannelId = environmentService.getDailyReminderChannelId();
-		log.debug("dailyReminderChannelId: {}", dailyReminderChannelId);
+		log.info("dailyReminderChannelId: {}", dailyReminderChannelId);
 
 		String notificationMessage = commonService.getPrefixedCollectionName(Constant.FIREBASE_COLLECTION_NOTIFICATION_MESSAGES);
-		log.debug("notificationMessageCollection: {}", notificationMessage);
+		log.info("notificationMessageCollection: {}", notificationMessage);
 
 		var messageDto = firestoreService.fetchData(notificationMessage, dailyReminderChannelId, NotificationMessageDto.class);
-		log.debug("messageDto: {}", messageDto);
+		log.info("messageDto: {}", messageDto);
 
 		for (NotificationStatusDto dto : notificationStatusDtoList)
 		{
 			String fcmTokenCollection = commonService.getPrefixedCollectionName(Constant.FIREBASE_COLLECTION_FCM_TOKENS);
-			log.debug("fcmTokenCollection: {}", fcmTokenCollection);
+			log.info("fcmTokenCollection: {}", fcmTokenCollection);
 
 			FcmTokenDto fcmTokenDto = firestoreService.fetchData(fcmTokenCollection, dto.getUsername(), FcmTokenDto.class);
-			log.debug("fcmTokenDto: {}", fcmTokenDto);
+			log.info("fcmTokenDto: {}", fcmTokenDto);
 
 			if (!StringUtils.hasText(fcmTokenDto.getToken()))
 				continue;

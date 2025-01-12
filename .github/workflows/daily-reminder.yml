@@ -13,6 +13,17 @@ jobs:
     name: Build
     runs-on: ubuntu-latest
     steps:
+      # Generating evn vars based on commit branch
+      - name: Set env vars based on branch
+        id: step-env-vars
+        run: |
+          if [[ $GITHUB_REF == 'refs/heads/master' ]]; then
+            echo "GAYYA_ENV_MODE=PROD" >> $GITHUB_ENV
+          else
+            echo "GAYYA_ENV_MODE=DEV" >> $GITHUB_ENV
+          fi
+      
+
       # Code checkout
       - name: Checkout
         uses: actions/checkout@v4
@@ -41,7 +52,7 @@ jobs:
 
       - name: Send Notifications
         env:
-          GAYYA_ENV_MODE: "DEV"
+          GAYYA_ENV_MODE: ${{ env.GAYYA_ENV_MODE }}
           GAYYA_DAILY_REMINDER_CHANNEL_ID: ${{ vars.GAYYA_DAILY_REMINDER_CHANNEL_ID }}
           GAYYA_FIREBASE_DATABASE_URL: ${{ vars.GAYYA_FIREBASE_DATABASE_URL }}
           GAYYA_FIREBASE_SERVICE_ACCOUNT_JSON_FILE: ${{ secrets.GAYYA_FIREBASE_SERVICE_ACCOUNT_JSON_FILE }}

@@ -2,6 +2,7 @@ package org.ajaxer.service;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -16,6 +17,7 @@ import java.time.format.DateTimeFormatter;
 @Slf4j
 @Service
 @Getter
+@ToString
 @RequiredArgsConstructor
 public class EnvironmentService
 {
@@ -34,6 +36,7 @@ public class EnvironmentService
 	@Value("${GAYYA_IST_TIME}")
 	private String istTime; //"%Y-%m-%d %H:%M:%S" || yyyy-MM-dd HH:mm:ss
 
+	@ToString.Include
 	public LocalDateTime getIstTimeDateTime()
 	{
 		log.info("istTime is {}", istTime);

@@ -11,4 +11,14 @@ public class FcmTokenDto
 {
 	private String username;
 	private String token;
+
+	@Override
+	public String toString()
+	{
+		String escapedToken = token == null ? "" : "**** ****";
+		return "FcmTokenDto{" +
+		       "username='" + username + '\'' +
+		       ", token='" + escapedToken + '\'' +
+		       '}';
+	}
 }

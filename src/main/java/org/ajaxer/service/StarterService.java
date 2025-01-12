@@ -29,7 +29,7 @@ public class StarterService
 
 	public void sendDailyReminderNotification() throws Exception
 	{
-		log.info(environmentService.toString());
+		//log.info(environmentService.toString());
 		List<NotificationStatusDto> notificationStatusDtoList = firestoreService.fetchNotificationStatus();
 		log.debug("notificationStatusDtoList: {}", notificationStatusDtoList);
 

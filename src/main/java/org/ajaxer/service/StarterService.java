@@ -42,11 +42,10 @@ public class StarterService
 		String dailyReminderChannelId = environmentService.getDailyReminderChannelId();
 		log.debug("dailyReminderChannelId: {}", dailyReminderChannelId);
 
-		String notificationMessage = commonService.getPrefixedCollectionName(Constant.FIREBASE_COLLECTION_NOTIFICATION_MESSAGES);
-		log.debug("notificationMessageCollection: {}", notificationMessage);
+		String messageCollection = commonService.getPrefixedCollectionName(Constant.FIREBASE_COLLECTION_NOTIFICATION_MESSAGES);
+		log.debug("messageCollection: {}", messageCollection);
 
-		var messageDto = firestoreService.fetchData(notificationMessage, dailyReminderChannelId, NotificationMessageDto.class);
-		log.debug("messageDto: {}", messageDto);
+		NotificationMessageDto notificationMessageDto = null;
 
 		for (NotificationStatusDto dto : notificationStatusDtoList)
 		{
@@ -66,7 +65,19 @@ public class StarterService
 			{
 				int savedMinutes = dto.getMinute() * 15;
 				if (isMinuteMatched(localDateTime.getMinute(), savedMinutes))
-					firebaseNotificationService.sendNotification(fcmTokenDto.getToken(), dailyReminderChannelId, messageDto);
+				{
+					if (notificationMessageDto == null)
+					{
+						notificationMessageDto = firestoreService.fetchData(messageCollection,
+						                                                    dailyReminderChannelId,
+						                                                    NotificationMessageDto.class);
+						log.debug("notificationMessageDto: {}", notificationMessageDto);
+					}
+
+					firebaseNotificationService.sendNotification(fcmTokenDto.getToken(),
+					                                             dailyReminderChannelId,
+					                                             notificationMessageDto);
+				}
 			}
 		}
 	}

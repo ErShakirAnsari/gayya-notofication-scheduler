@@ -29,8 +29,16 @@ public class StarterService
 
 	public void sendDailyReminderNotification() throws Exception
 	{
-		//log.info(environmentService.toString());
-		List<NotificationStatusDto> notificationStatusDtoList = firestoreService.fetchNotificationStatus();
+		LocalDateTime localDateTime = environmentService.getIstTimeDateTime();
+		log.debug("localDateTime: {}", localDateTime);
+
+		int quarter = getQuarter(localDateTime.getMinute());
+		log.debug("quarter: {}", quarter);
+
+		List<NotificationStatusDto> notificationStatusDtoList = firestoreService.fetchNotificationStatus(true,
+		                                                                                                 localDateTime.getHour(),
+		                                                                                                 quarter);
+
 		log.debug("notificationStatusDtoList: {}", notificationStatusDtoList);
 
 		if (CollectionUtils.isEmpty(notificationStatusDtoList))
@@ -45,40 +53,24 @@ public class StarterService
 		String messageCollection = commonService.getPrefixedCollectionName(Constant.FIREBASE_COLLECTION_NOTIFICATION_MESSAGES);
 		log.debug("messageCollection: {}", messageCollection);
 
-		NotificationMessageDto notificationMessageDto = null;
+		String fcmTokenCollection = commonService.getPrefixedCollectionName(Constant.FIREBASE_COLLECTION_FCM_TOKENS);
+		log.debug("fcmTokenCollection: {}", fcmTokenCollection);
+
+		var messageDto = firestoreService.fetchData(messageCollection, dailyReminderChannelId, NotificationMessageDto.class);
+		log.debug("messageDto: {}", messageDto);
 
 		for (NotificationStatusDto dto : notificationStatusDtoList)
 		{
-			String fcmTokenCollection = commonService.getPrefixedCollectionName(Constant.FIREBASE_COLLECTION_FCM_TOKENS);
-			log.debug("fcmTokenCollection: {}", fcmTokenCollection);
-
 			FcmTokenDto fcmTokenDto = firestoreService.fetchData(fcmTokenCollection, dto.getUsername(), FcmTokenDto.class);
 			log.debug("fcmTokenDto: {}", fcmTokenDto);
 
 			if (!StringUtils.hasText(fcmTokenDto.getToken()))
-				continue;
-
-			LocalDateTime localDateTime = environmentService.getIstTimeDateTime();
-			log.info("localDateTime: {}", localDateTime);
-
-			if (localDateTime.getHour() == dto.getHour())
 			{
-				int savedMinutes = dto.getMinute() * 15;
-				if (isMinuteMatched(localDateTime.getMinute(), savedMinutes))
-				{
-					if (notificationMessageDto == null)
-					{
-						notificationMessageDto = firestoreService.fetchData(messageCollection,
-						                                                    dailyReminderChannelId,
-						                                                    NotificationMessageDto.class);
-						log.debug("notificationMessageDto: {}", notificationMessageDto);
-					}
-
-					firebaseNotificationService.sendNotification(fcmTokenDto.getToken(),
-					                                             dailyReminderChannelId,
-					                                             notificationMessageDto);
-				}
+				log.error("fcmTokenDto.getToken() is empty for user: {}", fcmTokenDto.getUsername());
+				continue;
 			}
+
+			firebaseNotificationService.sendNotification(fcmTokenDto.getToken(), dailyReminderChannelId, messageDto);
 		}
 	}
 

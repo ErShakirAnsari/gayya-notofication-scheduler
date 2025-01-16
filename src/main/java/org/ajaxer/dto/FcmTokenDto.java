@@ -15,7 +15,7 @@ public class FcmTokenDto
 	@Override
 	public String toString()
 	{
-		String escapedToken = token == null ? "" : "**** ****";
+		String escapedToken = token == null ? "null" : "**** ****";
 		return "FcmTokenDto{" +
 		       "username='" + username + '\'' +
 		       ", token='" + escapedToken + '\'' +

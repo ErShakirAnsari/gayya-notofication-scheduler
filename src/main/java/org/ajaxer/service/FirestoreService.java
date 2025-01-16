@@ -8,8 +8,11 @@ import org.ajaxer.common.Constant;
 import org.ajaxer.dto.FcmTokenDto;
 import org.ajaxer.dto.NotificationStatusDto;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -50,8 +53,23 @@ public class FirestoreService
 	// Fetch all documents in a given collection and convert them to a list of objects
 	public <T> List<T> fetchData(String collectionName, Class<T> clazz) throws Exception
 	{
-		CollectionReference collectionReference = firestore.collection(collectionName);
-		ApiFuture<QuerySnapshot> future = collectionReference.get();  // Fetch all documents in the collection
+		return fetchData(collectionName, clazz, null);
+	}
+
+	// Fetch all documents in a given collection and convert them to a list of objects
+	public <T> List<T> fetchData(String collectionName, Class<T> clazz, Map<String, Object> filters) throws Exception
+	{
+		Query query = firestore.collection(collectionName);
+
+		if (!CollectionUtils.isEmpty(filters))
+		{
+			for (Map.Entry<String, Object> entry : filters.entrySet())
+			{
+				query = query.whereEqualTo(entry.getKey(), entry.getValue());
+			}
+		}
+
+		ApiFuture<QuerySnapshot> future = query.get();  // Fetch all documents in the collection
 
 		// Get the snapshot of all documents
 		QuerySnapshot querySnapshot = future.get();
@@ -71,14 +89,16 @@ public class FirestoreService
 		fcmTokenDtoList.forEach(fcmTokenDto -> log.info("fcmTokenDto: {}", fcmTokenDto));
 	}
 
-	public List<NotificationStatusDto> fetchNotificationStatus() throws Exception
+	public List<NotificationStatusDto> fetchNotificationStatus(boolean enable, int hour, int quater) throws Exception
 	{
 		String collectionName = commonService.getCollectionPrefix() + Constant.FIREBASE_COLLECTION_NOTIFICATION_STATUS;
 		log.info("collectionName: {}", collectionName);
 
-		var notificationStatusDtoList = fetchData(collectionName, NotificationStatusDto.class);
+		Map<String, Object> filters = new HashMap<>();
+		filters.put("enable", enable);
+		filters.put("hour", hour);
+		filters.put("minute", quater);
 
-		return notificationStatusDtoList.stream().filter(NotificationStatusDto::isEnable).collect(Collectors.toList());
+		return fetchData(collectionName, NotificationStatusDto.class, filters);
 	}
-
 }

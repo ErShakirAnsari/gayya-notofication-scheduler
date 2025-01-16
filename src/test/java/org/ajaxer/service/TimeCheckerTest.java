@@ -1,10 +1,10 @@
 package org.ajaxer.service;
 
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import static org.ajaxer.service.StarterService.isMinuteMatched;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Shakir Ansari
@@ -64,5 +64,38 @@ public class TimeCheckerTest
 		assertFalse(isMinuteMatched(30, 0));  // 30 >= 15
 		assertFalse(isMinuteMatched(12, 30)); // 12 < 30
 		assertFalse(isMinuteMatched(50, 15)); // 50 >= 30
+	}
+
+	@Nested
+	class QuarterTests
+	{
+		@Test
+		void testGetQuarter__ValidInputs()
+		{
+			// First Quarter
+			assertEquals(0, StarterService.getQuarter(0));
+			assertEquals(0, StarterService.getQuarter(14));
+
+			// Second Quarter
+			assertEquals(1, StarterService.getQuarter(15));
+			assertEquals(1, StarterService.getQuarter(29));
+
+			// Third Quarter
+			assertEquals(2, StarterService.getQuarter(30));
+			assertEquals(2, StarterService.getQuarter(44));
+
+			// Fourth Quarter
+			assertEquals(3, StarterService.getQuarter(45));
+			assertEquals(3, StarterService.getQuarter(59));
+		}
+
+		@Test
+		void testGetQuarter__InvalidInputs()
+		{
+			// Invalid inputs should default to 0 (First Quarter)
+			assertEquals(0, StarterService.getQuarter(-1));
+			assertEquals(0, StarterService.getQuarter(60));
+			assertEquals(0, StarterService.getQuarter(100));
+		}
 	}
 }

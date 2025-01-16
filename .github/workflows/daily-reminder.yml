@@ -1,11 +1,11 @@
 name: Daily Reminder
 
 on:
-  push:
-    branches:
-      - "master"
-  schedule:
-    - cron: "*/15 * * * *" # every hr
+#  push:
+#    branches:
+#      - "master"
+#  schedule:
+#    - cron: "*/15 * * * *" # every hr
   workflow_dispatch:
 
 jobs:

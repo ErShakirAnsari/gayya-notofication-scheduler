@@ -86,4 +86,21 @@ public class StarterService
 
 		return savedMinute == 45 && currentMinute >= 45;
 	}
+
+	public static int getQuarter(int minute)
+	{
+		if (minute < 0 || minute > 59)
+			minute = 0;
+
+		if (minute < 15)
+			return 0;
+
+		if (minute < 30)
+			return 1;
+
+		if (minute < 45)
+			return 2;
+
+		return 3;
+	}
 }
